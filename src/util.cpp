@@ -987,6 +987,75 @@ void ShrinkDebugFile()
 //
 static int64 nMockTime = 0;  // For unit testing
 
+// NTP time functions taken from the public domain code here: http://blog.p-jansson.com/2010/03/ntp-client-using-boostasio.html
+time_t GetNTPTime( const char* ntpServer )
+{
+	using boost::asio::ip::udp;
+	boost::asio::io_service io_service;
+
+	udp::resolver resolver(io_service);
+	udp::resolver::query query(udp::v4(), ntpServer, "ntp");
+	udp::endpoint receiver_endpoint = *resolver.resolve(query);
+
+	udp::endpoint sender_endpoint;
+
+	boost::uint8_t data[48] = {
+		0x1B,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+	};
+
+	udp::socket socket(io_service);
+	socket.open(udp::v4());
+
+	socket.send_to(
+			boost::asio::buffer(data),
+			receiver_endpoint);
+	 //ugly hack, CBA to switch to asio async I/O just to get a 3 sec timeout
+	 int hSocket = socket.native();
+	 fd_set fdset;
+	 FD_ZERO(&fdset);
+	 FD_SET(hSocket, &fdset);
+	 struct timeval t;
+	 t.tv_sec = 3;
+          t.tv_usec = 0;
+	 int n_readable = select(hSocket+1, &fdset, NULL, NULL, &t);
+          if (!n_readable)
+		 return time_t(0);
+	socket.receive_from(
+			boost::asio::buffer(data),
+			sender_endpoint);
+
+	typedef boost::uint32_t u32;
+	u32 iPart(
+			static_cast<u32>(data[40]) << 24
+			| static_cast<u32>(data[41]) << 16
+			| static_cast<u32>(data[42]) << 8
+			| static_cast<u32>(data[43])
+	);
+	u32 fPart(
+		static_cast<u32>(data[44]) << 24
+		| static_cast<u32>(data[45]) << 16
+		| static_cast<u32>(data[46]) << 8
+		| static_cast<u32>(data[47])
+	);
+
+	using namespace boost::posix_time;
+	ptime pt(
+			boost::gregorian::date(1900,1,1),
+			milliseconds(iPart * 1.0E3 + fPart * 1.0E3 / 0x100000000ULL )
+	);
+
+	// Convert ptime to epoch time_t
+	boost::posix_time::ptime epoch(boost::gregorian::date(1970,1,1));
+	time_duration::sec_type x = (pt - epoch).total_seconds();
+
+	return time_t(x);
+}
+time_t GetNTPTime()
+{
+	return GetNTPTime("pool.ntp.org");
+}
+
 int64 GetTime()
 {
     if (nMockTime) return nMockTime;
@@ -999,11 +1068,31 @@ void SetMockTime(int64 nMockTimeIn)
     nMockTime = nMockTimeIn;
 }
 
-static int64 nTimeOffset = 0;
+static int64 nTimeOffset		= 0;
+static int64 nTimeNTPOffset		= 0;
+static int64 nTimeNTPLastSync	= 0;
 
 int64 GetAdjustedTime()
 {
-    return GetTime() + nTimeOffset;
+    //return GetTime() + nTimeOffset;
+	int64 time = GetTime();
+	
+	if((time - nTimeNTPLastSync) >= (60 * 5)) // Calculate the NTP offset once every 5 min
+	{
+		int64 ntpTime = GetNTPTime();	
+		nTimeNTPLastSync = time;
+		 if (ntpTime)
+		 {
+			 nTimeNTPOffset = ntpTime - time;
+			 printf("nTimeNTPOffset=%d\n",nTimeNTPOffset);
+		 }
+		 else
+		 {
+			 printf("NTP timeout\n");
+		 }
+	}
+	
+    return time + nTimeNTPOffset;
 }
 
 void AddTimeData(const CNetAddr& ip, int64 nTime)

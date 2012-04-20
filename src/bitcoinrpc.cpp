@@ -263,7 +263,7 @@ Value BlockToValue(CBlock &block)
     obj.push_back(Pair("bits", (uint64_t)block.nBits));
     obj.push_back(Pair("nonce", (uint64_t)block.nNonce));
     obj.push_back(Pair("n_tx", (int)block.vtx.size()));
-    obj.push_back(Pair("size", (int)::GetSerializeSize(block, SER_NETWORK)));
+    obj.push_back(Pair("size", (int)::GetSerializeSize(block, SER_NETWORK, PROTOCOL_VERSION)));
 
     Array tx;
     for (int i = 0; i < block.vtx.size(); i++) {
@@ -273,7 +273,7 @@ Value BlockToValue(CBlock &block)
 	txobj.push_back(Pair("version", block.vtx[i].nVersion));
 	txobj.push_back(Pair("lock_time", (uint64_t)block.vtx[i].nLockTime));
 	txobj.push_back(Pair("size",
-		(int)::GetSerializeSize(block.vtx[i], SER_NETWORK)));
+		(int)::GetSerializeSize(block.vtx[i], SER_NETWORK, PROTOCOL_VERSION)));
 
 	Array tx_vin;
 	for (int j = 0; j < block.vtx[i].vin.size(); j++) {
@@ -2157,7 +2157,7 @@ Value getworkaux(const Array& params, bool fHelp)
             pow.SetMerkleBranch(pblock);
             pow.nChainIndex = nChainIndex;
             pow.parentBlock = *pblock;
-            CDataStream ss(SER_GETHASH|SER_BLOCKHEADERONLY);
+            CDataStream ss(SER_GETHASH|SER_BLOCKHEADERONLY, 0);
             ss << pow;
             Object result;
             result.push_back(Pair("auxpow", HexStr(ss.begin(), ss.end())));
@@ -2343,7 +2343,7 @@ Value getauxblock(const Array& params, bool fHelp)
         uint256 hash;
         hash.SetHex(params[0].get_str());
         vector<unsigned char> vchAuxPow = ParseHex(params[1].get_str());
-        CDataStream ss(vchAuxPow, SER_GETHASH|SER_BLOCKHEADERONLY);
+        CDataStream ss(vchAuxPow, SER_GETHASH|SER_BLOCKHEADERONLY, 0);
         CAuxPow* pow = new CAuxPow();
         ss >> *pow;
         if (!mapNewBlock.count(hash))

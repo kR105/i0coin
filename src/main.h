@@ -868,10 +868,10 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
 
-		nSerSize += ReadWriteAuxPow(s, auxpow, nType, nVersion, ser_action);
+	nSerSize += ReadWriteAuxPow(s, auxpow, nType, nVersion, ser_action);
 
         // ConnectBlock depends on vtx being last so it can calculate offset
-        if (!(nType & (SER_BLOCKHEADERONLY))
+        if (!(nType & (SER_BLOCKHEADERONLY)))
             READWRITE(vtx);
         else if (fRead)
             const_cast<CBlock*>(this)->vtx.clear();

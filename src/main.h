@@ -699,7 +699,7 @@ public:
     int nIndex;
 
     // memory only
-    mutable char fMerkleVerified;
+    mutable bool fMerkleVerified;
 
 
     CMerkleTx()

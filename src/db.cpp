@@ -546,7 +546,7 @@ bool CTxDB::LoadBlockIndex()
             pindexNew->nTime          = diskindex.nTime;
             pindexNew->nBits          = diskindex.nBits;
             pindexNew->nNonce         = diskindex.nNonce;
-
+            pindexNew->auxpow         = diskindex.auxpow;
             // Watch for genesis block
             if (pindexGenesisBlock == NULL && diskindex.GetBlockHash() == hashGenesisBlock)
                 pindexGenesisBlock = pindexNew;

@@ -10,6 +10,7 @@
 #include "net.h"
 #include "init.h"
 #include "ui_interface.h"
+#include "auxpow.h"
 #include "bitcoinrpc.h"
 
 #undef printf

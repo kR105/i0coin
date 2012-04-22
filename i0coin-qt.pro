@@ -80,6 +80,8 @@ contains(BITCOIN_NEED_QT_PLUGINS, 1) {
     # do not enable this on windows, as it will result in a non-working executable!
 }
 
+QMAKE_LFLAGS += -static -static-libgcc
+
 QMAKE_CXXFLAGS_WARN_ON = -fdiagnostics-show-option -Wall -Wextra -Wformat -Wformat-security -Wno-invalid-offsetof -Wno-sign-compare -Wno-unused-parameter
 
 # Input
@@ -331,7 +333,5 @@ contains(RELEASE, 1) {
         LIBS += -Wl,-Bdynamic
     }
 }
-
-message(picofinal)
 
 system($$QMAKE_LRELEASE -silent $$_PRO_FILE_)

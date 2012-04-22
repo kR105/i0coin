@@ -916,7 +916,7 @@ Address: %4
     </message>
     <message>
         <location filename="../forms/overviewpage.ui" line="47"/>
-        <source>123.456 BTC</source>
+        <source>123.456 I0C</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -936,7 +936,7 @@ Address: %4
     </message>
     <message>
         <location filename="../forms/overviewpage.ui" line="75"/>
-        <source>0 BTC</source>
+        <source>0 I0C</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -993,7 +993,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../forms/qrcodedialog.ui" line="105"/>
-        <source>BTC</source>
+        <source>I0C</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1068,7 +1068,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="../forms/sendcoinsdialog.ui" line="113"/>
-        <source>123.456 BTC</source>
+        <source>123.456 I0C</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

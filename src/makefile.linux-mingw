@@ -65,7 +65,7 @@ OBJS= \
     obj/walletdb.o \
     obj/noui.o
 
-all: bitcoind.exe
+all: i0coind.exe
 
 obj/build.h: FORCE
 	../share/genbuild.sh obj/build.h
@@ -75,14 +75,14 @@ DEFS += -DHAVE_BUILD_INFO
 obj/%.o: %.cpp $(HEADERS)
 	i586-mingw32msvc-g++ -c $(CFLAGS) -o $@ $<
 
-bitcoind.exe: $(OBJS:obj/%=obj/%)
+i0coind.exe: $(OBJS:obj/%=obj/%)
 	i586-mingw32msvc-g++ $(CFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS)
 
 
 obj/test/%.o: obj/test/%.cpp $(HEADERS)
 	i586-mingw32msvc-g++ -c $(CFLAGS) -o $@ $<
 
-test_bitcoin.exe: obj/test/test_bitcoin.o $(filter-out obj/init.o,$(OBJS:obj/%=obj/%))
+test_i0coin.exe: obj/test/test_bitcoin.o $(filter-out obj/init.o,$(OBJS:obj/%=obj/%))
 	i586-mingw32msvc-g++ $(CFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS) -lboost_unit_test_framework-mt-s
 
 
@@ -91,8 +91,8 @@ clean:
 	-rm -f obj/test/*.o
 	-rm -f test/*.o
 	-rm -f headers.h.gch
-	-rm -f bitcoind.exe
-	-rm -f test_bitcoin.exe
+	-rm -f i0coind.exe
+	-rm -f test_i0coin.exe
 	-rm -f src/build.h
 
 FORCE:
